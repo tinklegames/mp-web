@@ -1,23 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 	<meta charset="utf-8">
 
-	<!--
-	CHANGE THIS if your files are somewhere else.
-
-	Example repo layout:
-	mp-web/
-	└── docs/
-	    ├── index.html
-	    ├── index.js
-	    ├── index.wasm.part-000
-	    ├── index.wasm.part-001
-	    ├── ...
-	    ├── index.pck.part-000
-	    └── ...
-	-->
 	<base href="https://cdn.jsdelivr.net/gh/tinklegames/mp-web@main/docs/">
 
 	<meta
@@ -59,30 +44,16 @@
 			outline: none;
 		}
 
-		#status,
-		#status-splash,
-		#status-progress {
-			position: absolute;
-			left: 0;
-			right: 0;
-		}
-
-		#status,
-		#status-splash {
-			top: 0;
-			bottom: 0;
-		}
-
 		#status {
-			background-color: #000000;
+			position: absolute;
+			inset: 0;
+
+			background: black;
 
 			display: flex;
 			flex-direction: column;
-
 			justify-content: center;
 			align-items: center;
-
-			visibility: visible;
 
 			z-index: 100;
 		}
@@ -90,7 +61,6 @@
 		#status-splash {
 			max-height: 100%;
 			max-width: 100%;
-
 			margin: auto;
 		}
 
@@ -98,79 +68,39 @@
 			display: none;
 		}
 
-		#status-splash.fullsize--true {
-			height: 100%;
-			width: 100%;
-
-			object-fit: contain;
-		}
-
-		#status-splash.use-filter--false {
-			image-rendering: pixelated;
-		}
-
 		#status-loading-text {
 			color: white;
-
-			font-family:
-				'Noto Sans',
-				'Droid Sans',
-				Arial,
-				sans-serif;
-
+			font-family: Arial, sans-serif;
 			font-size: 24px;
-
 			text-align: center;
-
 			margin-bottom: 20px;
-
-			z-index: 2;
 		}
 
 		#status-progress {
-			position: relative;
-
-			bottom: auto;
-
 			width: 50%;
 			max-width: 600px;
-
-			margin: 0 auto;
-
-			display: block;
-
-			z-index: 2;
 		}
 
 		#status-notice {
 			display: none;
 
 			background-color: #5b3943;
-
-			border-radius: 0.5rem;
 			border: 1px solid #9b3943;
+			border-radius: 0.5rem;
 
 			color: #e0e0e0;
 
-			font-family:
-				'Noto Sans',
-				'Droid Sans',
-				Arial,
-				sans-serif;
-
-			line-height: 1.3;
+			font-family: Arial, sans-serif;
 
 			margin: 2rem;
 			padding: 1rem;
 
+			white-space: pre-wrap;
 			text-align: center;
-
-			z-index: 3;
 		}
 	</style>
 
 	<link
-		id="-gd-engine-icon"
 		rel="icon"
 		type="image/png"
 		href="index.icon.png"
@@ -196,7 +126,7 @@
 
 		<img
 			id="status-splash"
-			class="show-image--false fullsize--false use-filter--false"
+			class="show-image--false"
 			src="index.png"
 			alt=""
 		>
@@ -216,65 +146,55 @@
 	</div>
 
 
-	<!-- Godot's generated JavaScript -->
 	<script src="index.js"></script>
 
-
 	<script>
-		/*
-			=================================================
-			MACHINE PARTY SPLIT WEB LOADER
-			=================================================
-
-			Original exported sizes:
-
-			index.pck:
-			635943632 bytes
-
-			index.wasm:
-			36157734 bytes
-
-			Chunk size:
-			15 MiB
-		*/
-
-		const CHUNK_SIZE = 15 * 1024 * 1024;
-
-
 		const GODOT_CONFIG = {
-			"args": [],
-			"canvasResizePolicy": 2,
-			"emscriptenPoolSize": 8,
-			"ensureCrossOriginIsolationHeaders": false,
-			"executable": "index",
-			"experimentalVK": false,
+			args: [],
+			canvasResizePolicy: 2,
+			emscriptenPoolSize: 8,
+			ensureCrossOriginIsolationHeaders: false,
+			executable: "index",
+			experimentalVK: false,
 
-			"fileSizes": {
-				"index.pck": 635943632,
+			fileSizes: {
+				"index.pck": 636530976,
 				"index.wasm": 36157734
 			},
 
-			"focusCanvas": true,
-			"gdextensionLibs": [],
-			"godotPoolSize": 4
+			focusCanvas: true,
+			gdextensionLibs: [],
+			godotPoolSize: 4
 		};
 
 
 		const GODOT_THREADS_ENABLED = false;
 
 
-		const WASM_SIZE =
-			GODOT_CONFIG.fileSizes["index.wasm"];
+		/*
+			Use the exact GitHub filenames.
 
-		const PCK_SIZE =
-			GODOT_CONFIG.fileSizes["index.pck"];
+			This avoids having to care whether the files
+			were split into 10 MB, 15 MB, 90 MB, etc.
+		*/
+
+		const WASM_PARTS = [
+			"index.wasm.part-00",
+			"index.wasm.part-01",
+			"index.wasm.part-02",
+			"index.wasm.part-03"
+		];
 
 
-		const WASM_PART_COUNT =
-			Math.ceil(WASM_SIZE / CHUNK_SIZE);
-
-		const PCK_PART_COUNT =
-			Math.ceil(PCK_SIZE / CHUNK_SIZE);
+		const PCK_PARTS = [
+			"index.pck.part-00",
+			"index.pck.part-01",
+			"index.pck.part-02",
+			"index.pck.part-03",
+			"index.pck.part-04",
+			"index.pck.part-05",
+			"index.pck.part-06"
+		];
 
 
 		const statusOverlay =
@@ -290,81 +210,21 @@
 			document.getElementById("status-loading-text");
 
 
-		/*
-			Create:
-
-			index.wasm.part-000
-			index.wasm.part-001
-			...
-
-			or:
-
-			index.pck.part-000
-			index.pck.part-001
-			...
-		*/
-		function makePartNames(prefix, count) {
-
-			const parts = [];
-
-			for (let i = 0; i < count; i++) {
-
-				parts.push(
-					prefix +
-					String(i).padStart(3, "0")
-				);
-
-			}
-
-			return parts;
-		}
-
-
-		const WASM_PARTS = makePartNames(
-			"index.wasm.part-",
-			WASM_PART_COUNT
-		);
-
-
-		const PCK_PARTS = makePartNames(
-			"index.pck.part-",
-			PCK_PART_COUNT
-		);
-
-
-		console.log(
-			"WASM parts:",
-			WASM_PARTS.length,
-			WASM_PARTS
-		);
-
-		console.log(
-			"PCK parts:",
-			PCK_PARTS.length,
-			PCK_PARTS
-		);
-
-
 		function setLoadingText(text) {
-
 			loadingText.textContent = text;
-
 		}
 
 
 		function setProgress(current, total) {
 
 			if (total <= 0) {
-
 				statusProgress.removeAttribute("value");
 				statusProgress.removeAttribute("max");
-
 				return;
 			}
 
 			statusProgress.max = total;
 			statusProgress.value = current;
-
 		}
 
 
@@ -374,7 +234,6 @@
 
 			loadingText.style.display = "none";
 			statusProgress.style.display = "none";
-
 			statusNotice.style.display = "block";
 
 			let message;
@@ -391,13 +250,6 @@
 		}
 
 
-		/*
-			Downloads split chunks sequentially and copies
-			each one directly into the final Uint8Array.
-
-			This uses less memory than storing all 41 PCK
-			chunks and then joining them afterward.
-		*/
 		async function downloadSplitFile(
 			partNames,
 			expectedSize,
@@ -421,22 +273,17 @@
 				const partName =
 					partNames[i];
 
-
 				setLoadingText(
 					`${label} ${i + 1}/${partNames.length}`
 				);
 
-
-				console.log(
-					`Downloading ${partName}`
-				);
-
-
 				const response =
-					await fetch(partName, {
-						cache: "default"
-					});
-
+					await fetch(
+						partName,
+						{
+							cache: "default"
+						}
+					);
 
 				if (!response.ok) {
 
@@ -444,13 +291,10 @@
 						`Could not download ${partName} ` +
 						`(${response.status} ${response.statusText})`
 					);
-
 				}
-
 
 				const partBuffer =
 					await response.arrayBuffer();
-
 
 				const partArray =
 					new Uint8Array(partBuffer);
@@ -463,9 +307,8 @@
 				) {
 
 					throw new Error(
-						`${partName} is larger than expected.`
+						`${partName} makes ${label} larger than expected.`
 					);
-
 				}
 
 
@@ -473,7 +316,6 @@
 					partArray,
 					writeOffset
 				);
-
 
 				writeOffset +=
 					partArray.byteLength;
@@ -483,26 +325,17 @@
 					overallStart + i + 1,
 					overallTotal
 				);
-
 			}
 
 
 			if (writeOffset !== expectedSize) {
 
 				throw new Error(
-					`${label} size mismatch. ` +
-					`Expected ${expectedSize} bytes, ` +
-					`but reconstructed ${writeOffset} bytes.`
+					`${label} size mismatch.\n` +
+					`Expected: ${expectedSize} bytes\n` +
+					`Downloaded: ${writeOffset} bytes`
 				);
-
 			}
-
-
-			console.log(
-				`${label} reconstructed successfully:`,
-				writeOffset,
-				"bytes"
-			);
 
 
 			return output.buffer;
@@ -527,34 +360,31 @@
 						"required by Godot are missing:\n" +
 						missing.join("\n")
 					);
-
 				}
 
 
-				const totalDownloadParts =
+				const totalParts =
 					WASM_PARTS.length +
 					PCK_PARTS.length;
 
 
 				setProgress(
 					0,
-					totalDownloadParts
+					totalParts
 				);
 
 
 				/*
-					==============================
-					1. DOWNLOAD + REBUILD WASM
-					==============================
+					1. Rebuild WASM.
 				*/
 
 				const wasmBuffer =
 					await downloadSplitFile(
 						WASM_PARTS,
-						WASM_SIZE,
+						GODOT_CONFIG.fileSizes["index.wasm"],
 						"Downloading engine",
 						0,
-						totalDownloadParts
+						totalParts
 					);
 
 
@@ -562,11 +392,6 @@
 					"Preparing engine..."
 				);
 
-
-				/*
-					Turn reconstructed WASM into
-					a temporary browser URL.
-				*/
 
 				const wasmBlob =
 					new Blob(
@@ -585,9 +410,7 @@
 
 
 				/*
-					==============================
-					2. CREATE GODOT ENGINE
-					==============================
+					2. Initialize Godot.
 				*/
 
 				const engine =
@@ -596,25 +419,10 @@
 					);
 
 
-				setLoadingText(
-					"Starting Godot engine..."
-				);
-
-
-				/*
-					Manually initialize Godot using
-					our reconstructed WASM.
-				*/
-
 				await engine.init(
 					wasmURL
 				);
 
-
-				/*
-					Godot has loaded the WASM now,
-					so we don't need the blob URL.
-				*/
 
 				URL.revokeObjectURL(
 					wasmURL
@@ -622,18 +430,16 @@
 
 
 				/*
-					==============================
-					3. DOWNLOAD + REBUILD PCK
-					==============================
+					3. Rebuild PCK.
 				*/
 
 				const pckBuffer =
 					await downloadSplitFile(
 						PCK_PARTS,
-						PCK_SIZE,
+						GODOT_CONFIG.fileSizes["index.pck"],
 						"Downloading game data",
 						WASM_PARTS.length,
-						totalDownloadParts
+						totalParts
 					);
 
 
@@ -642,72 +448,38 @@
 				);
 
 
-				/*
-					Put the reconstructed PCK into
-					Godot's virtual filesystem.
-
-					preloadFile supports ArrayBuffer.
-				*/
-
 				await engine.preloadFile(
 					pckBuffer,
 					"index.pck"
 				);
 
 
+				/*
+					4. Start game.
+				*/
+
 				setLoadingText(
 					"Starting Machine Party..."
 				);
 
 
-				/*
-					==============================
-					4. START GAME
-					==============================
-				*/
-
 				await engine.start({
-
 					args: [
 						"--main-pack",
 						"index.pck"
-					],
-
-					onProgress:
-						function (
-							current,
-							total
-						) {
-
-							/*
-								Godot may send its own
-								startup progress here.
-							*/
-
-							console.log(
-								"Godot startup:",
-								current,
-								total
-							);
-
-						}
-
+					]
 				});
 
-
-				/*
-					Game is running.
-				*/
 
 				statusOverlay.remove();
 
 
 			} catch (error) {
 
-				showError(error);
-
+				showError(
+					error
+				);
 			}
-
 		}
 
 
@@ -715,5 +487,4 @@
 	</script>
 
 </body>
-
 </html>
